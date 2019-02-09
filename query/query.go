@@ -10,6 +10,8 @@ import (
 )
 
 var stringField = &graphql.Field{Type: graphql.String}
+
+// GraphQLクエリにおける、memberフィールドが持つべきフィールドについて
 var MemberType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Member",
@@ -20,6 +22,8 @@ var MemberType = graphql.NewObject(
 		},
 	},
 )
+
+// GraphQLクエリにおける、shopフィールドが持つべきフィールドについて
 var shopType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Shop",
@@ -29,6 +33,7 @@ var shopType = graphql.NewObject(
 			"members": &graphql.Field{
 				Type: graphql.NewList(MemberType),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					// 下のリゾルバーが返したものを取得する
 					shop, _ := p.Source.(*(gochiusa_type.Shop))
 
 					session, _ := mgo.Dial("mongodb://localhost:27017")
@@ -36,7 +41,6 @@ var shopType = graphql.NewObject(
 					db := session.DB("example")
 					DB := db.C("members")
 
-					// nameがnameQueryになっているレコードを探す
 					members := []gochiusa_type.Person{}
 					for _, memberidQuery := range shop.MemberList {
 						member := gochiusa_type.Person{}
@@ -52,7 +56,11 @@ var shopType = graphql.NewObject(
 	},
 )
 
-// define query schema
+// shopフィールドがどうresolveをするか
+//
+// resolveの値がそのまま返されるのではなく、shopTypeのフィールドに従って返される。
+// idやnameはresolveの指定がないのでそのまま返却されるが、
+// membersはShopに存在しないので上記のresolveが呼び出される。
 var ShopField = graphql.Field{
 	Type: shopType,
 	Args: graphql.FieldConfigArgument{

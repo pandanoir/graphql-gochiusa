@@ -6,13 +6,23 @@ import (
 	"fmt"
 	"net/http"
 
-	gochiusa "./schema"
+	"./query"
 	"github.com/graphql-go/graphql"
 )
 
-var schema = gochiusa.InitSchema()
+var schema, _ = graphql.NewSchema(
+	graphql.SchemaConfig{
+		Query: graphql.NewObject(
+			graphql.ObjectConfig{
+				Name:   "Query",
+				Fields: graphql.Fields{"shop": &query.ShopField},
+			},
+		),
+	},
+)
 
 func executeQuery(query string, schema graphql.Schema) *graphql.Result {
+	// GraphQLのshopフィールドの指定を行う
 	result := graphql.Do(graphql.Params{
 		Schema:        schema,
 		RequestString: query,
