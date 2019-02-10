@@ -33,7 +33,7 @@ var shopType = graphql.NewObject(
 			"members": &graphql.Field{
 				Type: graphql.NewList(MemberType),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					// 下のリゾルバーが返したものを取得する
+					// shopフィールドのリゾルバーが返したものを取得する
 					shop, _ := p.Source.(*(gochiusa_type.Shop))
 
 					session, _ := mgo.Dial("mongodb://localhost:27017")
@@ -77,7 +77,7 @@ var ShopField = graphql.Field{
 		db := session.DB("example")
 		DB := db.C("shop")
 
-		// nameがnameQueryになっているレコードを探す
+		// nameがnameQueryになっているドキュメントを探す
 		s := gochiusa_type.Shop{}
 		if err := DB.Find(bson.M{"name": nameQuery}).One(&s); err != nil {
 			fmt.Printf("%+v \n", err)
